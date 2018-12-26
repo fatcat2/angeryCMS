@@ -86,7 +86,8 @@ $('#summernote').summernote({
 				}
 		}
 });
-$('#summernote').summernote('code', '{{ body|safe }}');
+var x = {{ body|tojson }};
+$('#summernote').summernote('code', x);
 						</script>
 				</div>
 		</div>
@@ -166,5 +167,5 @@ function submitYesPublic(){
 				</div>
 		</div>
 </div>
-
+<br />
 {% endblock %}
