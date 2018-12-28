@@ -17,155 +17,141 @@
 
 <br />
 <form>
-		<div class="form-row">
-				<div class="col">
-						<div class="form-group">
-								<label for="headline">Headline</label>
-								<input type="text" class="form-control" id="headline" value="{{ headline }}">
-						</div>
-				</div>
-		</div>
-		<div class="form-row">
-				<div class="col">
-						<div class="form-group">
-								<label for="byline">Byline</label>
-								<input id="byline" class="form-control" type="text" value="{{ byline }}" readonly>	
-						</div>
-				</div>
-				<div class="col">
-						<div class="form-group">
-								<label for="ID">ID</label>
-								<input id="ID" class="form-control" type="number" value="{{ id }}" readonly>	
-						</div>
-				</div>
-				<div class="col">
-						<div class="form-group">
-								<label for="sectionSelect">Section</label>
-								<select class="form-control" id="sectionSelect" value="{{ section }}">
-										<option>NCAA Basketball</option>
-										<option>Purdue Sports</option>
-										<option>3</option>
-										<option>4</option>
-										<option>5</option>
-								</select>
-						</div>			
-				</div>
-		</div>
-		<div class="row">
-				<div class="col">
-						<div id="summernote"></div>
-						<script>
-$.ajax({
-		url: 'https://api.github.com/emojis',
-		async: false
-}).then(function(data) {
-		window.emojis = Object.keys(data);
-		window.emojiUrls = data;
-});
-$('#summernote').summernote({
-		placeholder: 'insert the text in me daddy uwu',
-		tabsize: 2,
-		height: 400,
-		hint: {
-				match: /:([\-+\w]+)$/,
-				search: function (keyword, callback) {
-						callback($.grep(emojis, function (item) {
-								return item.indexOf(keyword)  === 0;
-						}));
-				},
-				template: function (item) {
-						var content = emojiUrls[item];
-						return '<img src="' + content + '" width="20" /> :' + item + ':';
-				},
-				content: function (item) {
-						var url = emojiUrls[item];
-						if (url) {
-								return $('<img />').attr('src', url).css('width', 20)[0];
-						}
-						return '';
-				}
-		}
-});
-var x = {{ body|tojson }};
-$('#summernote').summernote('code', x);
-						</script>
-				</div>
-		</div>
-		<br />
-		<div class="form-row">
-		</div>
+    <div class="form-row">
+        <div class="col">
+            <div class="form-group">
+                <label for="headline">Headline{% if pub == True %}
+                    <span align="right" class="badge badge-success">Published</span>
+                    {% else %}
+                    <span class="badge badge-primary">Not Published</span>
+                    {% endif %}
+                </label>
+                <input type="text" class="form-control" id="headline" value="{{ headline }}">
+            </div>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col">
+            <div class="form-group">
+                <label for="byline">Byline</label>
+                <input id="byline" class="form-control" type="text" value="{{ byline }}" readonly>	
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label for="ID">ID</label>
+                <input id="ID" class="form-control" type="number" value="{{ id }}" readonly>	
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label for="sectionSelect">Section</label>
+                <select class="form-control" id="sectionSelect" value="{{ section }}">
+                    <option>NCAA Basketball</option>
+                    <option>Purdue Sports</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+            </div>			
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div id="summernote"></div>
+        </div>
+    </div>
+    <br />
+    <div class="form-row">
+    </div>
 
-		<br />
-		<div class="form-row">
-				<div class="col">
-						<button type="button" class="btn btn-info btn-lg btn-block" data-toggle="modal" data-target="#exampleModalCenter">
-								Add photo
-						</button>
-				</div>
-		</div>
-		<br />
-		<br />
-		<script>
+    <br />
+    <div class="form-row">
+        <div class="col">
+            <button type="button" class="btn btn-info btn-lg btn-block" data-toggle="modal" data-target="#exampleModalCenter">
+                Add photo
+            </button>
+        </div>
+    </div>
+    <br />
+    <br />
+    <div class="form-row">
+        <div class="col">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col">
+            <button type="button" class="btn btn-danger btn-lg btn-block">Delete</button>
+        </div>
+        <div class="col">
+            <button type="button" onclick="submitNoPublish()" class="btn btn-primary btn-lg btn-block">Save and don't publish</button>
+        </div>
+        <div class="col">
+            <button type="button" class="btn btn-success btn-lg btn-block">Save and publish</button>
+        </div>
+    </div>
+</form> 
+<script>
 function submitNoPublish(){
-		var markupStr = $('#summernote').summernote('code');
-		var headline = document.getElementById("headline").value;
-		var byline = document.getElementById("byline").value;
-		var section = document.getElementById("sectionSelect").value;
-		var id = document.getElementById("ID").value;
-		console.log(markupStr);
-		console.log(headline);
-		console.log(byline);
+    var markupStr = $('#summernote').summernote('code');
+    var headline = document.getElementById("headline").value;
+    var byline = document.getElementById("byline").value;
+    var section = document.getElementById("sectionSelect").value;
+    var id = document.getElementById("ID").value;
+    console.log(markupStr);
+    console.log(headline);
+    console.log(byline);
 
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", "/edit", true);
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		xhr.send(JSON.stringify({
-				'id': id,
-				'headline': headline,
-				'byline': byline,
-				'section': section,
-				'body': markupStr
-		}));
-		window.location.href = "/a";
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/edit", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({
+        'id': id,
+        'headline': headline,
+        'byline': byline,
+        'section': section,
+        'body': markupStr
+    }));
+    window.location.href = "/a";
 }
 
 function submitYesPublic(){
-		var markupStr = $('#summernote').summernote('code');
+    var markupStr = $('#summernote').summernote('code');
 }
-		</script>
 
+$.ajax({
+    url: 'https://api.github.com/emojis',
+    async: false
+}).then(function(data) {
+    window.emojis = Object.keys(data);
+    window.emojiUrls = data;
+});
+$('#summernote').summernote({
+    placeholder: 'insert the text in me daddy uwu',
+    tabsize: 2,
+    height: 400,
+    hint: {
+        match: /:([\-+\w]+)$/,
+        search: function (keyword, callback) {
+            callback($.grep(emojis, function (item) {
+                return item.indexOf(keyword)  === 0;
+            }));
+        },
+        template: function (item) {
+            var content = emojiUrls[item];
+            return '<img src="' + content + '" width="20" /> :' + item + ':';
+        },
+        content: function (item) {
+            var url = emojiUrls[item];
+            if (url) {
+                return $('<img />').attr('src', url).css('width', 20)[0];
+            }
+            return '';
+        }
+    }
+});
+var x = {{ body|tojson }};
+$('#summernote').summernote('code', x);
 
-		<div class="form-row">
-				<div class="col">
-						<button type="button" class="btn btn-danger btn-lg btn-block">Delete</button>
-				</div>
-				<div class="col">
-						<button type="button" onclick="submitNoPublish()" class="btn btn-primary btn-lg btn-block">Save and don't publish</button>
-				</div>
-				<div class="col">
-						<button type="button" class="btn btn-success btn-lg btn-block">Save and publish</button>
-				</div>
-		</div>
-</form> 
-
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-				<div class="modal-content">
-						<div class="modal-header">
-								<h5 class="modal-title" id="exampleModalCenterTitle">Choose photo</h5>
-								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-								</button>
-						</div>
-						<div class="modal-body">
-								...
-						</div>
-						<div class="modal-footer">
-								<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-								<button type="button" class="btn btn-primary">Save changes</button>
-						</div>
-				</div>
-		</div>
-</div>
-<br />
+</script>
 {% endblock %}

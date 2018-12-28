@@ -48,11 +48,20 @@ def index():
                 cursor = conn.execute('insert into images(name, link, date) values(?, ?, datetime("now"))', (filename, tmpLink,))
                 conn.commit()
                 conn.close()
-
+        
+        #checking publishing status
+        pub = False;
+        if 'no_pub' in data.keys():
+            pub = False
+        else:
+            pub = True
+        
+        #connecting and committing to the database
         conn = sqlite3.connect('static/articles.db')
-        cursor = conn.execute('insert into articles (headline, byline, section, body, datePub, photo) values(?,?,?,?,strftime("%Y-%m-%d %H-%M","now"), ?)', (data['headline'], data['byline'], data['section'], data['content'], tmpLink,))
+        cursor = conn.execute('insert into articles (headline, byline, section, body, datePub, photo, publish) values(?,?,?,?,strftime("%Y-%m-%d %H-%M","now"), ?, ?)', (data['headline'], data['byline'], data['section'], data['content'], tmpLink, pub,))
         conn.commit()
         conn.close()
+
         return render_template('index.html')
     else:
         return render_template('index.html')
@@ -83,7 +92,7 @@ def editSpecific(id):
         for row in cursor:
             article = row
         conn.close()
-        return render_template('edit.html', id=article[0], headline=article[1], byline=article[2], section=article[3], body=article[4])
+        return render_template('edit.html', id=article[0], headline=article[1], byline=article[2], section=article[3], body=article[4], pub=article[6])
 
 
 @app.route('/data')
