@@ -16,147 +16,139 @@
 
 
 <br />
-<form>
-	<div class="form-row">
-		<div class="col">
-			<div class="form-group">
-				<label for="headline">Headline</label>
-				<input type="text" class="form-control" id="headline" >
-			</div>
-		</div>
-	</div>
-	<div class="form-row">
-		<div class="col">
-			<div class="form-group">
-				<label for="byline">Byline</label>
-				<input id="byline" class="form-control" type="text" value="Ryan Chen" readonly>	
-			</div>
-		</div>
-		<div class="col">
-			<div class="form-group">
-				<label for="sectionSelect">Section</label>
-				<select class="form-control" id="sectionSelect">
-					<option>NCAA Basketball</option>
-					<option>Purdue Sports</option>
-					<option>3</option>
-					<option>4</option>
-					<option>5</option>
-				</select>
-			</div>			
-		</div>
-	</div>
-	<div class="row">
-		<div class="col">
-			<div id="summernote"></div>
-			<script>
-				$.ajax({
-					url: 'https://api.github.com/emojis',
-					async: false
-				}).then(function(data) {
-					window.emojis = Object.keys(data);
-					window.emojiUrls = data;
-				});
-$('#summernote').summernote({
-	placeholder: 'insert the text in me daddy uwu',
-	tabsize: 2,
-	height: 400,
-	hint: {
-		match: /:([\-+\w]+)$/,
-		search: function (keyword, callback) {
-			callback($.grep(emojis, function (item) {
-				return item.indexOf(keyword)  === 0;
-			}));
-		},
-		template: function (item) {
-			var content = emojiUrls[item];
-			return '<img src="' + content + '" width="20" /> :' + item + ':';
-		},
-		content: function (item) {
-			var url = emojiUrls[item];
-			if (url) {
-				return $('<img />').attr('src', url).css('width', 20)[0];
-			}
-			return '';
-		}
-	}
-});
-			</script>
-		</div>
-	</div>
-	<br />
-	<div class="form-row">
-	</div>
+<form action="/new" method="post" enctype="multipart/form-data">
+    <div class="form-row">
+        <div class="col">
+            <div class="form-group">
+                <label for="headline">Headline</label>
+                <input type="text" class="form-control" name="headline" id="headline" >
+            </div>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col">
+            <div class="form-group">
+                <label for="byline">Byline</label>
+                <input name="byline" id="byline" class="form-control" type="text" value="Ryan Chen" readonly>	
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label for="sectionSelect">Section</label>
+                <select name="section" class="form-control" id="sectionSelect">
+                    <option>NCAA Basketball</option>
+                    <option>Purdue Sports</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                </select>
+            </div>			
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <textarea name="content" id="summernote"></textarea>
+        </div>
+    </div>
+    <br />
+    <div class="form-row">
+    </div>
 
-	<br />
-	<div class="form-row">
-		<div class="col">
-			<button type="button" class="btn btn-info btn-lg btn-block" data-toggle="modal" data-target="#exampleModalCenter">
-				Add photo
-			</button>
-		</div>
-	</div>
-	<br />
-	<br />
-	<script>
-		function submitNoPublish(){
-			var markupStr = $('#summernote').summernote('code');
-			var headline = document.getElementById("headline").value;
-			var byline = document.getElementById("byline").value;
-			var section = document.getElementById("sectionSelect").value;
+    <br />
+    <div class="form-row">
+    <div class="input-group">
+        <label class="input-group-btn">
+            <span class="btn btn-primary">
+                Add Photo&hellip; <input name="image" id="image"type="file" style="display: none;" >
+            </span>
+        </label>
+        <input type="text" class="form-control" readonly>
+    </div>
+    </div>
 
-			console.log(markupStr);
-			console.log(headline);
-			console.log(byline);
+    <br />
+    <br />
 
-			var xhr = new XMLHttpRequest();
-			xhr.open("POST", "/new", true);
-			xhr.setRequestHeader('Content-Type', 'application/json');
-			xhr.send(JSON.stringify({
-				'headline': headline,
-				'byline': byline,
-				'section': section,
-				'body': markupStr
-			}));
-			window.location.href = "/a";
-		}
-
-		function submitYesPublic(){
-			var markupStr = $('#summernote').summernote('code');
-		}
-	</script>
-
-
-	<div class="form-row">
-		<div class="col-lg-auto">
-			<button type="button" class="btn btn-danger btn-lg btn-block">Delete</button>
-		</div>
-		<div class="col-lg-auto">
-			<button type="button" onclick="submitNoPublish()" class="btn btn-primary btn-lg btn-block">Save and don't publish</button>
-		</div>
-		<div class="col-lg-auto">
-			<button type="button" class="btn btn-success btn-lg btn-block">Save and publish</button>
-		</div>
-	</div>
+    <div class="form-row">
+        <div class="col-lg">
+            <button type="button" class="btn btn-danger btn-lg btn-block">Delete</button>
+        </div>
+        <div class="col-lg">
+            <button type="submit" name="no_pub" class="btn btn-primary btn-lg btn-block">Save and don't publish</button>
+        </div>
+        <div class="col-lg">
+            <button type="button" class="btn btn-success btn-lg btn-block">Save and publish</button>
+        </div>
+    </div>
 </form> 
 
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="exampleModalCenterTitle">Choose photo</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				...
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-primary">Save changes</button>
-			</div>
-		</div>
-	</div>
-</div>
+<script>
+//Functions for publishing
+function submitYesPublic(){
+    var markupStr = $('#summernote').summernote('code');
+}
+
+//Function for the filepicker
+$(function() {
+    // We can attach the `fileselect` event to all file inputs on the page
+    $(document).on('change', ':file', function() {
+        var input = $(this),
+        numFiles = input.get(0).files ? input.get(0).files.length : 1,
+        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+        input.trigger('fileselect', [numFiles, label]);
+    });
+
+    // We can watch for our custom `fileselect` event like this
+    $(document).ready( function() {
+        $(':file').on('fileselect', function(event, numFiles, label) {
+
+            var input = $(this).parents('.input-group').find(':text'),
+            log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+            if( input.length ) {
+                input.val(log);
+            } else {
+                if( log ) alert(log);
+            }
+
+        });
+    });
+});
+
+//Function for SummerNote emojis
+$.ajax({
+    url: 'https://api.github.com/emojis',
+    async: false
+}).then(function(data) {
+    window.emojis = Object.keys(data);
+    window.emojiUrls = data;
+});
+
+//Function for SummerNote init
+$('#summernote').summernote({
+    placeholder: 'insert the text in me daddy uwu',
+    tabsize: 2,
+    height: 400,
+    hint: {
+        match: /:([\-+\w]+)$/,
+        search: function (keyword, callback) {
+            callback($.grep(emojis, function (item) {
+                return item.indexOf(keyword)  === 0;
+            }));
+        },
+        template: function (item) {
+            var content = emojiUrls[item];
+            return '<img src="' + content + '" width="20" /> :' + item + ':';
+        },
+        content: function (item) {
+            var url = emojiUrls[item];
+            if (url) {
+                return $('<img />').attr('src', url).css('width', 20)[0];
+            }
+            return '';
+        }
+    }
+});
+</script>
 
 {% endblock %}

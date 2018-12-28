@@ -1,17 +1,58 @@
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 import json
+import boto3
+import uuid
+import os
+from werkzeug.utils import secure_filename
 app = Flask(__name__)
+UPLOAD_FOLDER='./tmp'
+ALLOWED_EXTENSIONS = set(['png', 'PNG', 'JPG', 'jpg', 'JPEG', 'jpeg'])
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/new', methods=['GET', 'POST'])
 def index():
+    #split into to sections: POST for saving the articles to DB and GET for getting the portal
     if request.method == "POST":
-        data = json.loads(request.data.decode('utf-8'))
+        #debug statements
+        print(request.form)
+        print(request.files)
+        data = request.form
+        #if statement for new images
+        #TODO: expand to allow old images
+        if 'image' not in request.files:
+            print('no file')
+        else:
+            file = request.files['image']
+
+            #just in case no file is submitted (again)
+            if file.filename == '':
+                return redirect(url_for('listArticles'))
+            
+            #now if it's the real deal
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                savePath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(savePath)
+                bucket = "jackson56a4fac2-0705-4d37-88d6-8582757e9b8c"
+                
+                boto3.client('s3').upload_file(Filename=savePath, Bucket=bucket,Key='Pictures/' + filename)
+                #save picture into picture db
+                conn = sqlite3.connect('static/articles.db')
+                tmpLink = 'https://s3.us-east-2.amazonaws.com/jackson56a4fac2-0705-4d37-88d6-8582757e9b8c/Pictures/' + filename
+                cursor = conn.execute('insert into images(name, link, date) values(?, ?, datetime("now"))', (filename, tmpLink,))
+                conn.commit()
+                conn.close()
+
         conn = sqlite3.connect('static/articles.db')
-        cursor = conn.execute('insert into articles (headline, byline, section, body, datePub) values(?,?,?,?,strftime("%Y-%m-%d %H-%M","now"))', (data['headline'], data['byline'], data['section'], data['body'],))
+        cursor = conn.execute('insert into articles (headline, byline, section, body, datePub, photo) values(?,?,?,?,strftime("%Y-%m-%d %H-%M","now"), ?)', (data['headline'], data['byline'], data['section'], data['content'], tmpLink,))
         conn.commit()
         conn.close()
-
         return render_template('index.html')
     else:
         return render_template('index.html')
@@ -72,6 +113,10 @@ def article(articleID):
     for row in cursor:
         body = row
     conn.close()
-    return render_template('article.html', headline=body[0], byline=body[1], body=body[3])
+    print(body[4])
+    if body[6] == True:
+        return render_template('article.html', headline=body[0], byline=body[1], body=body[3], img=body[4])
+    else:
+        return redirect(url_for('listArticles'))
 
 
