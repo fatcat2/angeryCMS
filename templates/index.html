@@ -56,14 +56,14 @@
 
     <br />
     <div class="form-row">
-    <div class="input-group">
-        <label class="input-group-btn">
-            <span class="btn btn-primary">
-                Add Photo&hellip; <input name="image" id="image"type="file" style="display: none;" >
-            </span>
-        </label>
-        <input type="text" class="form-control" readonly>
-    </div>
+        <div class="input-group">
+            <label class="input-group-btn">
+                <span class="btn btn-primary">
+                    Add Photo&hellip; <input name="image" id="image"type="file" style="display: none;" >
+                </span>
+            </label>
+            <input type="text" class="form-control" readonly>
+        </div>
     </div>
 
     <br />
@@ -77,17 +77,14 @@
             <button type="submit" name="no_pub" class="btn btn-primary btn-lg btn-block">Save and don't publish</button>
         </div>
         <div class="col-lg">
-            <button type="button" class="btn btn-success btn-lg btn-block">Save and publish</button>
+            <button type="submit" name="pub" class="btn btn-success btn-lg btn-block">Save and publish</button>
         </div>
     </div>
 </form> 
 
-<script>
-//Functions for publishing
-function submitYesPublic(){
-    var markupStr = $('#summernote').summernote('code');
-}
+<br />
 
+<script>
 //Function for the filepicker
 $(function() {
     // We can attach the `fileselect` event to all file inputs on the page

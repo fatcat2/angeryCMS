@@ -19,8 +19,8 @@ def allowed_file(filename):
 def index():
     #split into to sections: POST for saving the articles to DB and GET for getting the portal
     if request.method == "POST":
+        tmpLink = "";
         #debug statements
-        print(request.form)
         print(request.files)
         data = request.form
         #if statement for new images
@@ -33,14 +33,14 @@ def index():
             #just in case no file is submitted (again)
             if file.filename == '':
                 return redirect(url_for('listArticles'))
-            
+
             #now if it's the real deal
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 savePath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(savePath)
                 bucket = "jackson56a4fac2-0705-4d37-88d6-8582757e9b8c"
-                
+
                 boto3.client('s3').upload_file(Filename=savePath, Bucket=bucket,Key='Pictures/' + filename)
                 #save picture into picture db
                 conn = sqlite3.connect('static/articles.db')
@@ -49,13 +49,17 @@ def index():
                 conn.commit()
                 conn.close()
         
+        print(data.keys())
+        tmpList = [];
+        for key in data.keys():
+            tmpList.append(key)
         #checking publishing status
         pub = False;
-        if 'no_pub' in data.keys():
+        if 'no_pub' in tmpList:
             pub = False
         else:
             pub = True
-        
+
         #connecting and committing to the database
         conn = sqlite3.connect('static/articles.db')
         cursor = conn.execute('insert into articles (headline, byline, section, body, datePub, photo, publish) values(?,?,?,?,strftime("%Y-%m-%d %H-%M","now"), ?, ?)', (data['headline'], data['byline'], data['section'], data['content'], tmpLink, pub,))
@@ -69,30 +73,56 @@ def index():
 
 @app.route('/edit', methods=['POST'])
 def edit():
-    data = json.loads(request.data.decode('utf-8'))
+    data = request.form
+    if 'image' not in request.files:
+        print('no file')
+    else:
+        file = request.files['image']
+
+    #just in case no file is submitted (again)
+    if file.filename == '':
+        return redirect(url_for('listArticles'))
+
+    #now if it's the real deal
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        savePath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(savePath)
+        bucket = "jackson56a4fac2-0705-4d37-88d6-8582757e9b8c"
+
+        boto3.client('s3').upload_file(Filename=savePath, Bucket=bucket,Key='Pictures/' + filename)
+        #save picture into picture db
+        conn = sqlite3.connect('static/articles.db')
+        tmpLink = 'https://s3.us-east-2.amazonaws.com/jackson56a4fac2-0705-4d37-88d6-8582757e9b8c/Pictures/' + filename
+        cursor = conn.execute('insert into images(name, link, date) values(?, ?, datetime("now"))', (filename, tmpLink,))
+        conn.commit()
+        conn.close()
+
+    #checking publishing status
+    pub = False;
+    if 'no_pub' in data.keys():
+        print(data.keys())
+        pub = False
+    else:
+        print("Pub is true")
+        print(data['pub'])
+        pub = True
+
     conn = sqlite3.connect('static/articles.db')
-    cursor = conn.execute('update articles set headline=?, byline=?, section=?, body=? where ROWID=?', (data['headline'], data['byline'], data['section'], data['body'], data['id'],))
+    cursor = conn.execute('update articles set headline=?, byline=?, section=?, body=?, publish=? where ROWID=?', (data['headline'], data['byline'], data['section'], data['body'], pub, data['id']))
     conn.commit()
     conn.close()
     return ":)"
 
-@app.route('/edit/<id>', methods=['GET', 'POST'])
+@app.route('/edit/<id>', methods=['GET'])
 def editSpecific(id):
-    if request.method == 'POST':
-        data = json.loads(request.data.decode('utf-8'))
-        conn = sqlite3.connect('static/articles.db')
-        cursor = conn.execute('update articles set headline=?, byline=?, section=?, body=?', (data['headline'], data['byline'], data['section'], data['body'],))
-        conn.commit()
-        conn.close()
-        print('POST!')
-        return redirect(url_for('listArticles'))
-    else:
-        conn = sqlite3.connect('static/articles.db')
-        cursor = conn.execute('select rowid, * from articles where ROWID=?', (id,))
-        for row in cursor:
-            article = row
-        conn.close()
-        return render_template('edit.html', id=article[0], headline=article[1], byline=article[2], section=article[3], body=article[4], pub=article[6])
+    conn = sqlite3.connect('static/articles.db')
+    cursor = conn.execute('select rowid, * from articles where ROWID=?', (id,))
+    for row in cursor:
+        article = row
+    conn.close()
+    print(article[5])
+    return render_template('edit.html', id=article[0], headline=article[1], byline=article[2], section=article[3], body=article[4], image=article[5], pub=article[7])
 
 
 @app.route('/data')
