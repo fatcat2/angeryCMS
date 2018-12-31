@@ -12,6 +12,17 @@ ALLOWED_EXTENSIONS = set(['png', 'PNG', 'JPG', 'jpg', 'JPEG', 'jpeg'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
+@app.route('/', methods=['GET', 'POST'])
+def homepage():
+    conn = sqlite3.connect('static/articles.db')
+    cursor = conn.execute('select rowid, * from articles ORDER BY datePub DESC limit 10')
+    tmpList = []
+    for row in cursor:
+        tmpList.append(row)
+    initial = tmpList.pop(0)
+    return render_template('homepage.html', bigBox = initial, articles = tmpList)
+    
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -48,7 +59,7 @@ def index():
                 cursor = conn.execute('insert into images(name, link, date) values(?, ?, datetime("now"))', (filename, tmpLink,))
                 conn.commit()
                 conn.close()
-        
+
         print(data.keys())
         tmpList = [];
         for key in data.keys():
@@ -62,7 +73,7 @@ def index():
 
         #connecting and committing to the database
         conn = sqlite3.connect('static/articles.db')
-        cursor = conn.execute('insert into articles (headline, byline, section, body, datePub, photo, publish) values(?,?,?,?,strftime("%Y-%m-%d %H-%M","now"), ?, ?)', (data['headline'], data['byline'], data['section'], data['content'], tmpLink, pub,))
+        cursor = conn.execute('insert into articles (headline, byline, section, body, datePub, photo, publish, tagline) values(?,?,?,?,strftime("%Y-%m-%d %H-%M","now"), ?, ?, ?)', (data['headline'], data['byline'], data['section'], data['content'], tmpLink, pub, data['tagline'],))
         conn.commit()
         conn.close()
 
@@ -159,3 +170,9 @@ def article(articleID):
         return redirect(url_for('listArticles'))
 
 
+# run the app.
+if __name__ == "__main__":
+    # Setting debug to True enables debug output. This line should be
+    # removed before deploying a production app.
+    #application.debug = True
+    application.run()
