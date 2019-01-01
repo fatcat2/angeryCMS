@@ -224,6 +224,10 @@ def load_user(user_id):
     maybeUser = userList.pop(0)
     return User(maybeUser[0], maybeUser[2], maybeUser[1], maybeUser[4], maybeUser[3])
 
+@app.errorhandler(401)
+def page_not_found(e):
+    return redirect(url_for("login"))
+
 class User:
     def __init__(self, username, password, email, fullName, authLevel):
         self.username = username
