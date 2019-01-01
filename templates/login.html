@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content%}
+<form action="/login" method="post">
+    <br />
+    <div class="form-row justify-content-md-center">
+        <h4>Login to angery</h4>
+    </div>
+    <br/>
+    <div class="form-row justify-content-md-center">
+        <div class="col-5">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroupPrepend3">@</span>
+                </div>
+                <input name="username" type="text" class="form-control" id="validationServerUsername" placeholder="Username" aria-describedby="inputGroupPrepend3" >
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="form-row justify-content-md-center">
+        <div class="col-5">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroupPrepend3">P:</span>
+                </div>
+                <input name="password" type="password" class="form-control" id="validationServerUsername" placeholder="Password" aria-describedby="inputGroupPrepend3" >
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="form-row justify-content-md-center">
+        <div class="col-5">
+            <button type="submit" class="btn btn-primary btn-lg btn-block">Login</button>
+        </div>
+    </div>
+
+</form>
+{% endblock %}
