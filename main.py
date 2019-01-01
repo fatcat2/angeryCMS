@@ -1,18 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user
-from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
 import sqlite3
 import json
 import boto3
 import uuid
 import os
-from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 UPLOAD_FOLDER='./tmp'
 ALLOWED_EXTENSIONS = set(['png', 'PNG', 'JPG', 'jpg', 'JPEG', 'jpeg'])
-db = SQLAlchemy(app)
 app.secret_key = '_5#y2L"F4Q8z\n\xec]/'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -250,7 +248,5 @@ class User:
 
 # run the app.
 if __name__ == "__main__":
-    # Setting debug to True enables debug output. This line should be
-    # removed before deploying a production app.
     #application.debug = True
     application.run()
