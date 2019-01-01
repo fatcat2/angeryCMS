@@ -1,41 +1,50 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, login_user, login_required, logout_user
+from flask_sqlalchemy import SQLAlchemy
 import sqlite3
 import json
 import boto3
 import uuid
 import os
 from werkzeug.utils import secure_filename
+
 app = Flask(__name__)
 UPLOAD_FOLDER='./tmp'
 ALLOWED_EXTENSIONS = set(['png', 'PNG', 'JPG', 'jpg', 'JPEG', 'jpeg'])
+db = SQLAlchemy(app)
+app.secret_key = '_5#y2L"F4Q8z\n\xec]/'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
+login_manager = LoginManager(app)
 
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
     conn = sqlite3.connect('static/articles.db')
     cursor = conn.execute('select rowid, * from articles ORDER BY datePub DESC limit 10')
     tmpList = []
+
     for row in cursor:
         tmpList.append(row)
+
     initial = tmpList.pop(0)
     return render_template('homepage.html', bigBox = initial, articles = tmpList)
-    
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/new', methods=['GET', 'POST'])
+@login_required
 def index():
     #split into to sections: POST for saving the articles to DB and GET for getting the portal
     if request.method == "POST":
-        tmpLink = "";
+        tmpLink = ""
         #debug statements
-        print(request.files)
         data = request.form
         #if statement for new images
         #TODO: expand to allow old images
+
         if 'image' not in request.files:
             print('no file')
         else:
@@ -83,6 +92,7 @@ def index():
 
 
 @app.route('/edit', methods=['POST'])
+@login_required
 def edit():
     data = request.form
     if 'image' not in request.files:
@@ -126,6 +136,7 @@ def edit():
     return ":)"
 
 @app.route('/edit/<id>', methods=['GET'])
+@login_required
 def editSpecific(id):
     conn = sqlite3.connect('static/articles.db')
     cursor = conn.execute('select rowid, * from articles where ROWID=?', (id,))
@@ -152,6 +163,7 @@ def listArticlesJSON():
     return retJSON
 
 @app.route('/a')
+@login_required
 def listArticles():
     return render_template('listArticles.html')
 
@@ -168,6 +180,72 @@ def article(articleID):
         return render_template('article.html', headline=body[0], byline=body[1], body=body[3], img=body[4])
     else:
         return redirect(url_for('listArticles'))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        form = request.form
+        user = form['username']
+        conn = sqlite3.connect('static/users.db')
+        cursor = conn.execute('select * from users where username=?', (user,))
+        
+
+        tmpLoginList = []
+        for row in cursor:
+            tmpLoginList.append(row)
+        conn.close()
+        if(len(tmpLoginList) <= 0):
+            return redirect(url_for("homepage"))
+
+        maybeUser = tmpLoginList[0]
+        maybeUserHash = generate_password_hash(maybeUser[2])
+        if (len(tmpLoginList) > 0) and (maybeUser[0] == user) and (check_password_hash(maybeUserHash, form['password'])):
+            #success
+            print("success")
+            login_user(User(maybeUser[0], maybeUser[2], maybeUser[1], maybeUser[4], maybeUser[3]), remember=True)
+            return redirect(url_for("listArticles"))
+        else:
+            return redirect(url_for("homepage"))
+    else:
+        return render_template("login.html")
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("homepage"))
+
+@login_manager.user_loader
+def load_user(user_id):
+    conn = sqlite3.connect('static/users.db')
+    cursor = conn.execute('select * from users where username=?', (user_id,))
+    userList = []
+    for r in cursor:
+        userList.append(r)
+    maybeUser = userList.pop(0)
+    return User(maybeUser[0], maybeUser[2], maybeUser[1], maybeUser[4], maybeUser[3])
+
+class User:
+    def __init__(self, username, password, email, fullName, authLevel):
+        self.username = username
+        self.password = password
+        self.email = email
+        self.fullName = fullName
+        self.authLevel = authLevel
+        self.authenticated = True
+
+    def is_active(self):
+        return True
+
+    def get_id(self):
+        return self.username
+
+    def is_authenticated(self):
+        return self.authenticated
+
+    def is_anonymous(self):
+        return False
 
 
 # run the app.
