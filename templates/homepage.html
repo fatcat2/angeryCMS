@@ -1,7 +1,7 @@
 {% extends "articleBase.html" %}
 {% block content %}
 <div class = "row justify-content-md-center">
-    <div class="col-9">
+    <div class="col-lg-9 col">
         <div class="jumbotron">
             <div class="container">
                 <h1 class="display-4"><a class="text-dark" href="/a/{{ bigBox[0] }}">{{ bigBox[1] }}</a></h1>
@@ -12,10 +12,10 @@
 </div>
 {% for a in articles %}
 <div class = "row justify-content-md-center">
-    <div class ="col-4">
+    <div class ="col col-lg-4">
         <img src="{{ a[5]}}" style="object-fit: cover; height: 180px; width: 320px; vertical-align: center;" class="rounded float-left img-thumbnail" alt="...">
     </div>
-    <div class="col-5">
+    <div class="col col-lg-5">
         <h3><a class="text-dark" href="/a/{{ a[0] }}">{{ a[1] }}</a></h3>
         <p>By {{ a[2] }}</p>
         <p>{{ a[8] }}</p>
