@@ -1,11 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user
 from werkzeug.utils import secure_filename
 import sqlite3
 import json
 import boto3
-import uuid
 import os
 
 app = Flask(__name__)
@@ -113,7 +112,7 @@ def edit():
         #save picture into picture db
         conn = sqlite3.connect('static/articles.db')
         tmpLink = 'https://s3.us-east-2.amazonaws.com/jackson56a4fac2-0705-4d37-88d6-8582757e9b8c/Pictures/' + filename
-        cursor = conn.execute('insert into images(name, link, date) values(?, ?, datetime("now"))', (filename, tmpLink,))
+        conn.execute('insert into images(name, link, date) values(?, ?, datetime("now"))', (filename, tmpLink,))
         conn.commit()
         conn.close()
 
@@ -135,9 +134,9 @@ def edit():
 
 @app.route('/edit/<id>', methods=['GET'])
 @login_required
-def editSpecific(id):
+def editSpecific(articleID):
     conn = sqlite3.connect('static/articles.db')
-    cursor = conn.execute('select rowid, * from articles where ROWID=?', (id,))
+    cursor = conn.execute('select rowid, * from articles where ROWID=?', (articleID,))
     for row in cursor:
         article = row
     conn.close()
@@ -187,7 +186,6 @@ def login():
         user = form['username']
         conn = sqlite3.connect('static/users.db')
         cursor = conn.execute('select * from users where username=?', (user,))
-        
 
         tmpLoginList = []
         for row in cursor:
@@ -232,8 +230,8 @@ class User:
         self.fullName = fullName
         self.authLevel = authLevel
         self.authenticated = True
-
-    def is_active(self):
+    @classmethod
+    def is_active(cls):
         return True
 
     def get_id(self):
@@ -242,7 +240,8 @@ class User:
     def is_authenticated(self):
         return self.authenticated
 
-    def is_anonymous(self):
+    @classmethod
+    def is_anonymous(cls):
         return False
 
 
