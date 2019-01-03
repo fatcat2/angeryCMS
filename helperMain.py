@@ -7,6 +7,7 @@ def processImage(request):
     tmpLink = ""
     if 'image' not in request.files:
         print('no file')
+        return ""
     else:
         file = request.files['image']
 
