@@ -5,9 +5,9 @@ import os
 def processImage(request):
     data = request.form
     tmpLink = ""
-    file = request.files['image']
     if 'image' not in request.files:
         print('no file')
+        return tmpLink = ""
     else:
         file = request.files['image']
 
