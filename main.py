@@ -1,3 +1,4 @@
+# import libraries
 from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user
@@ -6,6 +7,9 @@ import sqlite3
 import json
 import boto3
 import os
+
+# import helper library
+from helperMain import processImage
 
 app = Flask(__name__)
 UPLOAD_FOLDER='./tmp'
@@ -36,35 +40,7 @@ def allowed_file(filename):
 def index():
     #split into to sections: POST for saving the articles to DB and GET for getting the portal
     if request.method == "POST":
-        tmpLink = ""
-        #debug statements
-        data = request.form
-        #if statement for new images
-        #TODO: expand to allow old images
-
-        if 'image' not in request.files:
-            print('no file')
-        else:
-            file = request.files['image']
-
-            #just in case no file is submitted (again)
-            if file.filename == '':
-                return redirect(url_for('listArticles'))
-
-            #now if it's the real deal
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                savePath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(savePath)
-                bucket = "jackson56a4fac2-0705-4d37-88d6-8582757e9b8c"
-
-                boto3.client('s3').upload_file(Filename=savePath, Bucket=bucket,Key='Pictures/' + filename)
-                #save picture into picture db
-                conn = sqlite3.connect('static/articles.db')
-                tmpLink = 'https://s3.us-east-2.amazonaws.com/jackson56a4fac2-0705-4d37-88d6-8582757e9b8c/Pictures/' + filename
-                cursor = conn.execute('insert into images(name, link, date) values(?, ?, datetime("now"))', (filename, tmpLink,))
-                conn.commit()
-                conn.close()
+        tmpLink = processImage(request)
 
         print(data.keys())
         tmpList = [];
@@ -91,30 +67,8 @@ def index():
 @app.route('/edit', methods=['POST'])
 @login_required
 def edit():
-    data = request.form
-    if 'image' not in request.files:
-        print('no file')
-    else:
-        file = request.files['image']
-
-    #just in case no file is submitted (again)
-    if file.filename == '':
-        return redirect(url_for('listArticles'))
-
-    #now if it's the real deal
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        savePath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(savePath)
-        bucket = "jackson56a4fac2-0705-4d37-88d6-8582757e9b8c"
-
-        boto3.client('s3').upload_file(Filename=savePath, Bucket=bucket,Key='Pictures/' + filename)
-        #save picture into picture db
-        conn = sqlite3.connect('static/articles.db')
-        tmpLink = 'https://s3.us-east-2.amazonaws.com/jackson56a4fac2-0705-4d37-88d6-8582757e9b8c/Pictures/' + filename
-        conn.execute('insert into images(name, link, date) values(?, ?, datetime("now"))', (filename, tmpLink,))
-        conn.commit()
-        conn.close()
+    # See if image needs to be put in database
+    tmpLink = processImage(request)
 
     #checking publishing status
     pub = False;
@@ -127,7 +81,7 @@ def edit():
         pub = True
 
     conn = sqlite3.connect('static/articles.db')
-    cursor = conn.execute('update articles set headline=?, byline=?, section=?, body=?, publish=? where ROWID=?', (data['headline'], data['byline'], data['section'], data['body'], pub, data['id']))
+    cursor = conn.execute('update articles set headline=?, byline=?, section=?, body=?, publish=?, photo=? where ROWID=?', (data['headline'], data['byline'], data['section'], data['body'], pub, tmpLink, data['id']))
     conn.commit()
     conn.close()
     return ":)"
