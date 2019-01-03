@@ -41,7 +41,7 @@ def index():
     #split into to sections: POST for saving the articles to DB and GET for getting the portal
     if request.method == "POST":
         tmpLink = processImage(request)
-
+        data = request.form
         print(data.keys())
         tmpList = [];
         for key in data.keys():
@@ -69,7 +69,7 @@ def index():
 def edit():
     # See if image needs to be put in database
     tmpLink = processImage(request)
-
+    data = request.form
     #checking publishing status
     pub = False;
     if 'no_pub' in data.keys():
