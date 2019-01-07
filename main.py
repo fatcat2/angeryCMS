@@ -22,13 +22,14 @@ login_manager = LoginManager(app)
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
     conn = sqlite3.connect('static/articles.db')
-    cursor = conn.execute('select rowid, * from articles ORDER BY datePub DESC limit 10')
+    cursor = conn.execute('select rowid, * from articles where publish=True ORDER BY datePub DESC limit 10')
     tmpList = []
 
     for row in cursor:
         tmpList.append(row)
 
     initial = tmpList.pop(0)
+    print(initial[0])
     return render_template('homepage.html', bigBox = initial, articles = tmpList)
 
 
