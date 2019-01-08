@@ -1,0 +1,9 @@
+div.jumbotron.hero-nature{
+    color:#fff;
+    text-align:center;
+    background:url('https://vignette.wikia.nocookie.net/goldenkamuy/images/d/d4/Uiluk.png');
+    background-size:cover;
+    background-position:center;
+    padding-top:100%;
+    padding-bottom:100px;
+}
