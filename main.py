@@ -2,10 +2,8 @@
 from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user
-from werkzeug.utils import secure_filename
 import sqlite3
 import json
-import boto3
 import os
 
 # import helper library
@@ -58,7 +56,7 @@ def index():
 
         #connecting and committing to the database
         conn = sqlite3.connect('static/articles.db')
-        cursor = conn.execute('insert into articles (headline, byline, section, body, datePub, photo, publish, tagline) values(?,?,?,?,strftime("%Y-%m-%d %H-%M","now"), ?, ?, ?)', (data['headline'], data['byline'], data['section'], data['content'], tmpLink, pub, data['tagline'],))
+        conn.execute('insert into articles (headline, byline, section, body, datePub, photo, publish, tagline) values(?,?,?,?,strftime("%Y-%m-%d %H-%M","now"), ?, ?, ?)', (data['headline'], data['byline'], data['section'], data['content'], tmpLink, pub, data['tagline'],))
         conn.commit()
         conn.close()
 
@@ -84,7 +82,7 @@ def edit():
         pub = True
 
     conn = sqlite3.connect('static/articles.db')
-    cursor = conn.execute('update articles set headline=?, byline=?, section=?, body=?, publish=?, photo=? where ROWID=?', (data['headline'], data['byline'], data['section'], data['body'], pub, tmpLink, data['id']))
+    conn.execute('update articles set headline=?, byline=?, section=?, body=?, publish=?, photo=? where ROWID=?', (data['headline'], data['byline'], data['section'], data['body'], pub, tmpLink, data['id']))
     conn.commit()
     conn.close()
     return ":)"

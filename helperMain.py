@@ -3,7 +3,6 @@ import boto3
 import os
 
 def processImage(request):
-    data = request.form
     tmpLink = ""
     if 'image' not in request.files:
         print('no file')
