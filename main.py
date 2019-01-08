@@ -28,9 +28,11 @@ def homepage():
     for row in cursor:
         tmpList.append(row)
 
-    initial = tmpList.pop(0)
-    print(initial[0])
-    return render_template('homepage.html', bigBox = initial, articles = tmpList)
+    initialList = []
+    initialList.append(tmpList.pop(0))
+    initialList.append(tmpList.pop(0))
+    initialList.append(tmpList.pop(0))
+    return render_template('homepage.html', bigBox = initialList, articles = tmpList)
 
 
 def allowed_file(filename):
