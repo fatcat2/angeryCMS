@@ -87,16 +87,21 @@ def edit():
     conn.close()
     return ":)"
 
-@app.route('/edit/<id>', methods=['GET'])
+@app.route('/edit/<articleID>', methods=['GET'])
 @login_required
 def editSpecific(articleID):
     conn = sqlite3.connect('static/articles.db')
     cursor = conn.execute('select rowid, * from articles where ROWID=?', (articleID,))
+    articleTMP = []
     for row in cursor:
-        article = row
+        articleTMP.append(row)
+    if(len(articleTMP) == 0):
+        conn.close()
+        return redirect(url_for('listArticles'))
     conn.close()
-    print(article[5])
-    return render_template('edit.html', id=article[0], headline=article[1], byline=article[2], section=article[3], body=article[4], image=article[5], pub=article[7])
+    article = articleTMP[0]
+    print(article)
+    return render_template('edit.html', id=articleID, headline=article[1], byline=article[2], section=article[3], body=article[4], image=article[5], pub=article[7])
 
 
 @app.route('/data')
