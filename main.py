@@ -127,14 +127,14 @@ def listArticles():
 @app.route('/a/<articleID>')
 def article(articleID):
     conn = sqlite3.connect('static/articles.db')
-    cursor = conn.execute('select * from articles where ROWID=?', (articleID,))
+    cursor = conn.execute('select rowid, * from articles where ROWID=?', (articleID,))
     body = ""
     for row in cursor:
         body = row
     conn.close()
     print(body[4])
     if body[6] == True:
-        return render_template('article.html', headline=body[0], byline=body[1], body=body[3], img=body[4])
+        return render_template('article.html', articleID=body[0], headline=body[1], byline=body[2], body=body[4], img=body[5], tagline=body[8])
     else:
         return redirect(url_for('listArticles'))
 
