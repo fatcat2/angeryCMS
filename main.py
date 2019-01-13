@@ -133,7 +133,7 @@ def article(articleID):
         body = row
     conn.close()
     print(body[4])
-    if body[6] == True:
+    if body[7] == True:
         return render_template('article.html', articleID=body[0], headline=body[1], byline=body[2], body=body[4], img=body[5], tagline=body[8])
     else:
         return redirect(url_for('listArticles'))
