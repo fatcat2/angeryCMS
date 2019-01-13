@@ -1,4 +1,20 @@
 {% extends "articleBase.html" %}
+
+{% block head %}
+<!-- Place this data between the <head> tags of your website -->
+<meta name="description" content="{{ tagline }}" />
+
+<!-- Twitter Card data -->
+<meta name="twitter:card" value="{{ tagline }}">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="{{ headline }}" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://nineyardsnews.com/a/{{articleID}}" />
+<meta property="og:image" content="{{ img }}" />
+<meta property="og:description" content="{{ tagline }}" />
+{% endblock %}
+
 {% block content %}
 <div class = "row justify-content-center">
     <div class="col col-lg-8">
