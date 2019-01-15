@@ -1,7 +1,7 @@
 # angeryCMS
 A custom CMS I made for a few friends and personal use.
 
-# Components
+## Components
 Backend:
 * Flask
 * SQLite DB
