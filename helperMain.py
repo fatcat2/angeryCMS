@@ -1,6 +1,14 @@
 import sqlite3
 import boto3
 import os
+from werkzeug.utils import secure_filename
+from main import app
+ALLOWED_EXTENSIONS = set(['png', 'PNG', 'JPG', 'jpg', 'JPEG', 'jpeg'])
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
 
 def processImage(request):
     tmpLink = ""
