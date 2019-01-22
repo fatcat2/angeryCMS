@@ -58,8 +58,8 @@ app.secret_key = '_5#y2L"F4Q8z\n\xec]/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 login_manager = LoginManager(app)
 
-@app.route('/', methods=['GET', 'POST'])
-def homepage():
+@app.route('/test')
+def testPage():
     conn = sqlite3.connect('static/articles.db')
     cursor = conn.execute('select rowid, * from articles where publish=1 ORDER BY datePub DESC limit 10')
     tmpList = []
@@ -69,7 +69,20 @@ def homepage():
 
     initialList = []
     initialList.append(tmpList.pop(0))
-    return render_template('homepage.html', bigBox = initialList, articles = tmpList)
+    initialList.append(tmpList.pop(0))
+    print(initialList);
+    return render_template('homepage.html', bigBox=initialList[1])
+
+@app.route('/', methods=['GET', 'POST'])
+def homepage():
+    conn = sqlite3.connect('static/articles.db')
+    cursor = conn.execute('select rowid, * from articles where publish=1 ORDER BY datePub DESC limit 10')
+    tmpList = []
+
+    for row in cursor:
+        tmpList.append(row)
+
+    return render_template('homepage.html', bigBox=tmpList.pop(0))
 
 
 def allowed_file(filename):
