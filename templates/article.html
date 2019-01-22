@@ -16,25 +16,26 @@
 {% endblock %}
 
 {% block content %}
-<div class = "row justify-content-center">
-    <div class="col col-lg-8">
-        <h1 class="display=4">{{ headline }}</h3>
+<div class="container">
+    <div class = "row justify-content-center">
+        <div class="col-7">
+            <h1 class="display=4">{{ headline }}</h3>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-7">
+            <p class="text-left">By {{ byline }}</p>
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
+        <div class="col-8">
+            <img src="{{ img }}" class="img-fluid" alt="Responsive image">
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
+        <div class="col-7">
+            <p>{{ body|safe }}</p>
+        </div>
     </div>
 </div>
-<div class="row justify-content-center">
-    <div class="col col-lg-8">
-        <p class="text-left">By {{ byline }}</p>
-    </div>
-</div>
-<div class="row justify-content-md-center">
-    <div class="col col-lg-8">
-        <img src="{{ img }}" class="img-fluid" style="width:100%;" alt="Responsive image">
-    </div>
-</div>
-<div class="row justify-content-md-center">
-    <div class="col col-lg-8">
-        <p>{{ body|safe }}</p>
-    </div>
-</div>
-
 {% endblock %}
