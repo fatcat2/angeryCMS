@@ -1,6 +1,6 @@
 import os
 
-from angery_cms_server.server import app
+from angery_cms_server.app import app
 
 angery_cms_server = app
 
