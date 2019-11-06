@@ -1,2 +1,0 @@
-CREATE TABLE articles (headline text, byline text, section text, body text, photo text, datePub datetime, publish boolean default False);
-CREATE TABLE images(name text, description text, uses int
